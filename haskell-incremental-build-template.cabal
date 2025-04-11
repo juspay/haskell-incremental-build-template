@@ -1,0 +1,28 @@
+cabal-version:      2.4
+name:               haskell-incremental-build-template
+version:            0.1.0.0
+license:            MIT
+copyright:          2022 Shivaraj B H
+maintainer:         me@shivaraj-bh.in
+author:             Shivaraj B H
+category:           Web
+synopsis:           A template for enabling incremental builds in Haskell projects using Nix
+
+extra-source-files:
+  LICENSE
+  README.md
+
+common shared
+  ghc-options:
+    -Wall
+
+  build-depends:
+    , base        >=4 && <5
+
+  hs-source-dirs:     src
+  default-language:   GHC2021
+
+executable haskell-incremental-build-template
+  import:        shared
+  main-is:       Main.hs
+  other-modules: Example

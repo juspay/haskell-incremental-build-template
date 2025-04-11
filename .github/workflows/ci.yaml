@@ -1,0 +1,64 @@
+name: "CI"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install omnix and attic-client
+        run: |
+          nix profile install nixpkgs#omnix nixpkgs#attic-client
+          nix --version
+
+      - name: Setup Attic cache
+        run: |
+          attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
+          attic use chutney:oss
+
+      - name: Find base commit for incremental build
+        id: find_intermediates_base
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_COMMIT=$(sh .github/workflows/find_intermediates_base.sh)
+          if [ -n "$BASE_COMMIT" ]; then
+            echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+          else
+            echo "No base commit found for incremental build"
+          fi
+
+      - name: Determine build type
+        id: build_type
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_intermediates_base.outputs.base_commit }}" ]; then
+            echo "Build type: incremental"
+            echo "build_type=incremental" >> $GITHUB_OUTPUT
+          else
+            echo "Build type: full"
+            echo "build_type=full" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build
+        run: |
+          if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
+            WORKTREE_DIR="temp-worktree-${{ steps.find_intermediates_base.outputs.base_commit }}"
+            git worktree add $WORKTREE_DIR ${{ steps.find_intermediates_base.outputs.base_commit }}
+            om ci run -- --override-input "flake/incremental" "path:$WORKTREE_DIR"
+            git worktree remove $WORKTREE_DIR
+          else
+            om ci
+          fi
+
+      - name: Push to Attic cache
+        run: attic push chutney:oss result
