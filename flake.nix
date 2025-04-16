@@ -5,11 +5,14 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
     nixos-unified.url = "github:srid/nixos-unified";
-    haskell-flake.url = "github:srid/haskell-flake";
+    haskell-flake.url = "github:shivaraj-bh/haskell-flake/incremental";
     fourmolu-nix.url = "github:jedimahdi/fourmolu-nix";
 
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.flake = false;
+
+    incremental.follows = "";
+
   };
 
   outputs = inputs:

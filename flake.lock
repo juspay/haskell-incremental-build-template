@@ -53,15 +53,16 @@
     },
     "haskell-flake": {
       "locked": {
-        "lastModified": 1743922999,
-        "narHash": "sha256-Wh+Zak8sZUgair4pnZR0mLrLIhhInHS8izj7C1H10B8=",
-        "owner": "srid",
+        "lastModified": 1744783138,
+        "narHash": "sha256-9k5Z2KJRmbRFGnoWK7lr5lWg4dGtF/o4yBxi+6iXurA=",
+        "owner": "shivaraj-bh",
         "repo": "haskell-flake",
-        "rev": "d102e0f8a1773b1a63a616faef670cf5e129f9e9",
+        "rev": "52b40b6bd331560b2fbf1b145869ac22a4105281",
         "type": "github"
       },
       "original": {
-        "owner": "srid",
+        "owner": "shivaraj-bh",
+        "ref": "incremental",
         "repo": "haskell-flake",
         "type": "github"
       }
@@ -103,6 +104,7 @@
         "fourmolu-nix": "fourmolu-nix",
         "git-hooks": "git-hooks",
         "haskell-flake": "haskell-flake",
+        "incremental": [],
         "nixos-unified": "nixos-unified",
         "nixpkgs": "nixpkgs"
       }
