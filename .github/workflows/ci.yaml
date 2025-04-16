@@ -13,6 +13,9 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Required for`git merge-base <base> <head>`
+          fetch-depth: 0
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Install omnix and attic-client
         run: | 
