@@ -17,8 +17,12 @@ jobs:
       - name: Install omnix
         run: | 
           nix --accept-flake-config profile install "github:juspay/omnix"
+          nix profile install nixpkgs#attic-client
           nix --version
+      - name: Attic login
+        run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: Build all flake outputs
         run: om ci
-      - name: What GHC version?
-        run: nix develop -c ghc --version
+      - name: Attic push
+        run: attic push chutney:oss result
+
