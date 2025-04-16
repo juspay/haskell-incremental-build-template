@@ -23,7 +23,14 @@ jobs:
       - name: Attic use
         run: attic use chutney:oss
       - name: Build all flake outputs
-        run: om ci
+        run: |
+          echo $(git merge-base main test)
+          echo $BASE_COMMIT
+          if nix path-info $(nix eval "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$BASE_COMMIT"#default.intermediates.outPath | tr -d '"'); then
+            om ci run -- --override-input "flake/incremental" "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$BASE_COMMIT"
+          else
+            om ci
+          fi
       - name: Attic push
         run: attic push chutney:oss result
 
