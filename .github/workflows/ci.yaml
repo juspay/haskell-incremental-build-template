@@ -3,7 +3,7 @@ on:
   # Run only when pushing to master branch, and making PRs
   push:
     branches:
-      - master
+      - main
   pull_request:
 jobs:
   build:
@@ -21,6 +21,8 @@ jobs:
           nix --version
       - name: Attic login
         run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
+      - name: Attic use
+        run: attic use chutney:oss
       - name: Build all flake outputs
         run: om ci
       - name: Attic push
