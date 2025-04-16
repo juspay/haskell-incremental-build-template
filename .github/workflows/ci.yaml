@@ -64,7 +64,7 @@ jobs:
           if [ -z "${{ steps.check_commits.outputs.successful_commit }}" ]; then
             om ci
           else
-        om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
+            om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
           fi
       - name: Attic push
         run: attic push chutney:oss result
