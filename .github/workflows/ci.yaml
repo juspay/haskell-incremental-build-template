@@ -22,9 +22,9 @@ jobs:
         run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: Attic use
         run: attic use chutney:oss
+      - run: git merge-base ${{ github.base_ref }} ${{ github.head_ref }}
       - name: Build all flake outputs
         run: |
-          echo $(git merge-base main test)
           echo $BASE_COMMIT
           if nix path-info $(nix eval "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$BASE_COMMIT"#default.intermediates.outPath | tr -d '"'); then
             om ci run -- --override-input "flake/incremental" "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$BASE_COMMIT"
