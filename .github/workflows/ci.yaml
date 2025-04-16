@@ -35,7 +35,7 @@ jobs:
           for COMMIT in $(git log -n 5 --pretty=%H); do
             echo "Testing commit $COMMIT"
             git checkout $COMMIT
-            if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"'); then
+            if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"') --store https://cache.nixos.asia/oss; then
               SUCCESSFUL_COMMIT=$COMMIT
               echo "Intermediates exist for $COMMIT"
               break
