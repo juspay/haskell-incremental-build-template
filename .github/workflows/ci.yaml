@@ -48,13 +48,23 @@ jobs:
           else
             echo "None of the previous 5 commits have build intermediates"
           fi
-        
+      - name: Add worktree for the successful commit
+        id: worktree
+        run: |
+          WORKTREE_DIR="temp-worktree"
+          
+          git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
+          if [ -n "$WORKTREE_DIR" ]; then
+            echo "worktree_dir=$WORKTREE_DIR" >> $GITHUB_OUTPUT
+          else
+            echo "Worktree creation failed"
+          fi
       - name: Build all flake outputs
         run: |
           if [ -z "${{ steps.check_commits.outputs.successful_commit }}" ]; then
             om ci
           else
-            om ci run -- --override-input "flake/incremental" "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$BASE_COMMIT"
+        om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
           fi
       - name: Attic push
         run: attic push chutney:oss result
