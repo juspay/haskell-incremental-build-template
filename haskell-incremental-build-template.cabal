@@ -9,7 +9,8 @@ category:           Web
 
 -- TODO: Before hackage release.
 -- A short (one-line) description of the package.
-synopsis:           A template for enabling incremental builds in Haskell projects using Nix
+synopsis:
+  A template for enabling incremental builds in Haskell projects using Nix
 
 -- A longer description of the package.
 -- description:
@@ -63,5 +64,6 @@ common shared
   default-language:   GHC2021
 
 executable haskell-incremental-build-template
-  import:  shared
-  main-is: Main.hs
+  import:        shared
+  main-is:       Main.hs
+  other-modules: Example
