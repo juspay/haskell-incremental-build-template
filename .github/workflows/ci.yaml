@@ -23,7 +23,7 @@ jobs:
       - name: Attic use
         run: attic use chutney:oss
       - name: Build all flake outputs
-        run: om ci
+        run: om ci --include-all-dependencies
       - name: Attic push
         run: attic push chutney:oss result
 
