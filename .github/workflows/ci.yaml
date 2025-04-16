@@ -14,10 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
-      - name: Install omnix
+      - name: Install omnix and attic-client
         run: | 
-          nix --accept-flake-config profile install "github:juspay/omnix"
-          nix profile install nixpkgs#attic-client
+          nix profile install nixpkgs#omnix nixpkgs#attic-client
           nix --version
       - name: Attic login
         run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
