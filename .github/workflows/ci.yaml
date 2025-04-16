@@ -34,7 +34,8 @@ jobs:
           SUCCESSFUL_COMMIT=""
           for COMMIT in $(git log -n 5 --pretty=%H); do
             echo "Testing commit $COMMIT"
-            if nix path-info $(nix eval "git+ssh://git@github.com/juspay/haskell-incremental-build-template/?rev=$COMMIT"#default.intermediates.outPath | tr -d '"'); then
+            git checkout $COMMIT
+            if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"'); then
               SUCCESSFUL_COMMIT=$COMMIT
               echo "Intermediates exist for $COMMIT"
               break
