@@ -1,6 +1,6 @@
 name: "CI"
 on:
-  # Run only when pushing to master branch, and making PRs
+  # Run only when pushing to main branch, and making PRs
   push:
     branches:
       - main
@@ -21,10 +21,10 @@ jobs:
         run: | 
           nix profile install nixpkgs#omnix nixpkgs#attic-client
           nix --version
-      - name: Attic login
-        run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
-      - name: Attic use
-        run: attic use chutney:oss
+      - name: Setup Attic
+        run: |
+          attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
+          attic use chutney:oss
       - name: Find first intermediates from last 5 commits
         id: check_commits
         if: ${{ github.event_name == 'pull_request' }}
@@ -32,6 +32,7 @@ jobs:
           SUCCESSFUL_COMMIT=""
           for COMMIT in $(git log -n 5 --pretty=%H); do
             echo "Testing commit $COMMIT"
+            # A workaround for runners not having access to private repos when the Git SSH url is used
             git checkout $COMMIT
             if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"') --store https://cache.nixos.asia/oss; then
               SUCCESSFUL_COMMIT=$COMMIT
@@ -48,25 +49,19 @@ jobs:
           else
             echo "None of the previous 5 commits have build intermediates"
           fi
-      # This stage is required for private repos
-      - name: Add worktree for the commit with intermediates 
-        id: worktree
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          WORKTREE_DIR="temp-worktree"
-          git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
-
-          echo "worktree_dir=$WORKTREE_DIR" >> $GITHUB_OUTPUT
       - name: Incremental Build
         if: ${{ github.event_name == 'pull_request' }}
-        run: om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
-      - name: Cleanup worktree 
-        if: ${{ github.event_name == 'pull_request' }}
         run: |
+          # A workaround for runners not having access to private repos when the Git SSH url is used
+          WORKTREE_DIR="temp-worktree"
+          git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
+          om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
+          # cleanup
           git worktree remove ${{ steps.worktree.outputs.worktree_dir }}
+      # Perform a full build only on the main branch
       - name: Full Build
         if: ${{ github.event_name == 'push' }}
         run: om ci
-      - name: Attic push
+      - name: Attic Push
         run: attic push chutney:oss result
 
