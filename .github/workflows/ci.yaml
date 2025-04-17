@@ -40,7 +40,8 @@ jobs:
             else
               echo "Intermediates do not exist for $COMMIT"
             fi
-            git checkout ${{ github.head_ref }}
+            echo ${{ github.sha }}
+            git checkout ${{ github.sha }}
           done
           if [ -n "$SUCCESSFUL_COMMIT" ]; then
             echo "successful_commit=$SUCCESSFUL_COMMIT" >> $GITHUB_OUTPUT
