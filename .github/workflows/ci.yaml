@@ -55,7 +55,7 @@ jobs:
           # A workaround for runners not having access to private repos when the Git SSH url is used
           WORKTREE_DIR="temp-worktree"
           git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
-          om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
+          om ci run -- --override-input "flake/incremental" "path:$WORKTREE_DIR"
           # cleanup
           git worktree remove ${{ steps.worktree.outputs.worktree_dir }}
       # Perform a full build only on the main branch
