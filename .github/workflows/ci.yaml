@@ -25,8 +25,9 @@ jobs:
         run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: Attic use
         run: attic use chutney:oss
-      - name: Find successful CI run from last 5 commits
+      - name: Find first intermediates from last 5 commits
         id: check_commits
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           SUCCESSFUL_COMMIT=""
           for COMMIT in $(git log -n 5 --pretty=%H); do
@@ -39,30 +40,32 @@ jobs:
             else
               echo "Intermediates do not exist for $COMMIT"
             fi
+            git checkout ${{ github.head_ref }}
           done
           if [ -n "$SUCCESSFUL_COMMIT" ]; then
             echo "successful_commit=$SUCCESSFUL_COMMIT" >> $GITHUB_OUTPUT
           else
             echo "None of the previous 5 commits have build intermediates"
           fi
-      - name: Add worktree for the successful commit
+      # This stage is required for private repos
+      - name: Add worktree for the commit with intermediates 
         id: worktree
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           WORKTREE_DIR="temp-worktree"
-          
           git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
-          if [ -n "$WORKTREE_DIR" ]; then
-            echo "worktree_dir=$WORKTREE_DIR" >> $GITHUB_OUTPUT
-          else
-            echo "Worktree creation failed"
-          fi
-      - name: Build all flake outputs
+
+          echo "worktree_dir=$WORKTREE_DIR" >> $GITHUB_OUTPUT
+      - name: Incremental Build
+        if: ${{ github.event_name == 'pull_request' }}
+        run: om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
+      - name: Cleanup worktree 
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          if [ -z "${{ steps.check_commits.outputs.successful_commit }}" ]; then
-            om ci
-          else
-            om ci run -- --override-input "flake/incremental" "path:${{ steps.worktree.outputs.worktree_dir }}"
-          fi
+          git worktree remove ${{ steps.worktree.outputs.worktree_dir }}
+      - name: Full Build
+        if: ${{ github.event_name == 'push' }}
+        run: om ci
       - name: Attic push
         run: attic push chutney:oss result
 
