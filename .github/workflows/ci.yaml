@@ -30,6 +30,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           SUCCESSFUL_COMMIT=""
+          echo $(git log -n 5 --pretty=%H)
           for COMMIT in $(git log -n 5 --pretty=%H); do
             echo "Testing commit $COMMIT"
             # A workaround for runners not having access to private repos when the Git SSH url is used
@@ -52,12 +53,16 @@ jobs:
       - name: Incremental Build
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          # A workaround for runners not having access to private repos when the Git SSH url is used
-          WORKTREE_DIR="temp-worktree"
-          git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
-          om ci run -- --override-input "flake/incremental" "path:$WORKTREE_DIR"
-          # cleanup
-          git worktree remove ${{ steps.worktree.outputs.worktree_dir }}
+          if [ -z "${{ steps.check_commits.outputs.successful_commit }}" ]; then
+            om ci
+          else
+            # A workaround for runners not having access to private repos when the Git SSH url is used
+            WORKTREE_DIR="temp-worktree"
+            git worktree add $WORKTREE_DIR ${{ steps.check_commits.outputs.successful_commit }}
+            om ci run -- --override-input "flake/incremental" "path:$WORKTREE_DIR"
+            # cleanup
+            git worktree remove ${{ steps.worktree.outputs.worktree_dir }}
+          fi
       # Perform a full build only on the main branch
       - name: Full Build
         if: ${{ github.event_name == 'push' }}
