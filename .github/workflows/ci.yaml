@@ -44,6 +44,7 @@ jobs:
             else
               echo "Intermediates do not exist for $COMMIT"
             fi
+            git worktree remove $WORKTREE_DIR
             cd -
           done
           if [ -n "$SUCCESSFUL_COMMIT" ]; then
