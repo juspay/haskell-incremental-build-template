@@ -30,11 +30,13 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           SUCCESSFUL_COMMIT=""
-          echo $(git log -n 5 --pretty=%H)
+          # A workaround for runners not having access to private repos when the Git SSH url is used
+          WORKTREE_DIR="temp-worktree"
           for COMMIT in $(git log -n 5 --pretty=%H); do
             echo "Testing commit $COMMIT"
             # A workaround for runners not having access to private repos when the Git SSH url is used
-            git checkout $COMMIT
+            git worktree add $WORKTREE_DIR $COMMIT
+            cd $WORKTREE_DIR
             if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"') --store https://cache.nixos.asia/oss; then
               SUCCESSFUL_COMMIT=$COMMIT
               echo "Intermediates exist for $COMMIT"
@@ -42,8 +44,7 @@ jobs:
             else
               echo "Intermediates do not exist for $COMMIT"
             fi
-            echo ${{ github.sha }}
-            git checkout ${{ github.sha }}
+            cd -
           done
           if [ -n "$SUCCESSFUL_COMMIT" ]; then
             echo "successful_commit=$SUCCESSFUL_COMMIT" >> $GITHUB_OUTPUT
