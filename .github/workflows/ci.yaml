@@ -32,7 +32,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           BASE_COMMIT=$(sh .github/workflows/find_intermediates_base.sh)
-          if [ $? -eq 0 ]; then
+          if [ -n "$BASE_COMMIT" ]; then
             echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
           else
             echo "No base commit found for incremental build"
