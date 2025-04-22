@@ -20,4 +20,3 @@ for COMMIT in $(git log -n 5 --pretty=%H); do
   fi
   cd -
 done
-echo "None of the previous 5 commits have build intermediates, falling back to full build"
