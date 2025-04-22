@@ -12,18 +12,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 5
+      - uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Install Nix, omnix, and attic-client
-        uses: DeterminateSystems/nix-installer-action@main
-        # Combine Nix installation and package setup for simplicity
-        followed-by:
-          run: |
-            nix --version
-            nix profile install nixpkgs#omnix nixpkgs#attic-client
+      - name: Install omnix and attic-client
+        run: |
+          nix profile install nixpkgs#omnix nixpkgs#attic-client
+          nix --version
 
       - name: Setup Attic cache
         run: |
