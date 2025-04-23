@@ -27,7 +27,7 @@
     packages.default =
       pkgs.haskell.lib.compose.overrideCabal
         (drv: {
-          previousIntermediates = if inputs.prev != inputs.self then inputs'.incremental.packages.default else null;
+          previousIntermediates = if inputs.prev != inputs.self then inputs'.prev.packages.default else null;
         })
         config.haskellProjects.default.outputs.finalPackages.haskell-incremental-build-template;
   };
