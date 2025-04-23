@@ -20,7 +20,6 @@
       settings = {
         haskell-incremental-build-template = {
           installIntermediates = true;
-          separateIntermediatesOutput = true;
         };
       };
       autoWire = [ ];
@@ -34,7 +33,7 @@
         incremental =
           pkgs.haskell.lib.compose.overrideCabal
             (drv: {
-              previousIntermediates = inputs'.incremental.packages.default.intermediates;
+              previousIntermediates = inputs'.incremental.packages.default;
             })
             config.haskellProjects.default.outputs.finalPackages.haskell-incremental-build-template;
       })
