@@ -8,7 +8,10 @@ for COMMIT in $(git log -n 5 --pretty=%H); do
   WORKTREE_DIR="temp-worktree-$COMMIT"
   git worktree add $WORKTREE_DIR $COMMIT
   cd $WORKTREE_DIR
-  if nix path-info $(nix eval .#default.intermediates.outPath | tr -d '"') --store https://cache.nixos.asia/oss; then
+  # Check if the `default` package of this commit revision is present in the cache.
+  #
+  # Note: Only checks for the presence, doesn't pull the path from the cache.
+  if nix path-info $(nix eval .#default.outPath | tr -d '"') --store https://cache.nixos.asia/oss; then
     echo "Intermediates exist for $COMMIT"
     # Output only the commit hash to original stdout (fd 3)
     echo "$COMMIT" >&3
