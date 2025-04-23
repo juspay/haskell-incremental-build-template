@@ -24,20 +24,11 @@
       };
       autoWire = [ ];
     };
-
-    packages = lib.mkMerge [
-      (lib.mkIf (inputs.incremental == inputs.self) {
-        default = config.haskellProjects.default.outputs.finalPackages.haskell-incremental-build-template;
-      })
-      (lib.mkIf (inputs.incremental != inputs.self) {
-        incremental =
-          pkgs.haskell.lib.compose.overrideCabal
-            (drv: {
-              previousIntermediates = inputs'.incremental.packages.default;
-            })
-            config.haskellProjects.default.outputs.finalPackages.haskell-incremental-build-template;
-      })
-    ];
-
+    packages.default =
+      pkgs.haskell.lib.compose.overrideCabal
+        (drv: {
+          previousIntermediates = if inputs.prev != inputs.self then inputs'.incremental.packages.default else null;
+        })
+        config.haskellProjects.default.outputs.finalPackages.haskell-incremental-build-template;
   };
 }

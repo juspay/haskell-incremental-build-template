@@ -11,8 +11,11 @@
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.flake = false;
 
-    incremental.follows = "";
-
+    # Follows `inputs.self` by default
+    #
+    # When `--override-input prev <older-revision-of-current-flake>` is used,
+    # `self.pacakges.<system>.default` uses `prev.packages.<system>.default`'s build artifacts to build incrementally
+    prev.follows = "";
   };
 
   outputs = inputs:
