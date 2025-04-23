@@ -104,9 +104,9 @@
         "fourmolu-nix": "fourmolu-nix",
         "git-hooks": "git-hooks",
         "haskell-flake": "haskell-flake",
-        "incremental": [],
         "nixos-unified": "nixos-unified",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "prev": []
       }
     }
   },
