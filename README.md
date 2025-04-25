@@ -11,9 +11,7 @@ A template for incremental Haskell builds using Nix, leveraging [nixpkgs’s Has
 For an existing Haskell project already using [haskell-flake], integrate this template by:
 - Add the `prev` flake input (see [flake.nix](./flake.nix)).
 - Include settings from [haskell.nix](./nix/modules/flake/haskell.nix):
-  - `haskellProjects.default.settings.haskell-incremental-build-template`
-  - `haskellProjects.default.autoWire`
-  - `perSystem.packages.default`
+  - See `haskellProjects.default.settings.haskell-incremental-build-template`
 - Adopt the CI workflow from [ci.yaml](./github/workflows/ci.yaml).
 
 [haskell-flake]: https://github.com/srid/haskell-flake
