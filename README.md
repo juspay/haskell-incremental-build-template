@@ -12,7 +12,7 @@ For an existing Haskell project already using [haskell-flake], integrate this te
 - Add the `prev` flake input (see [flake.nix](./flake.nix)).
 - Include settings from [haskell.nix](./nix/modules/flake/haskell.nix):
   - See `haskellProjects.default.settings.haskell-incremental-build-template`
-- Adopt the CI workflow from [ci.yaml](./github/workflows/ci.yaml).
+- Adopt the CI workflow from [ci.yaml](./.github/workflows/ci.yaml).
 
 [haskell-flake]: https://github.com/srid/haskell-flake
 
