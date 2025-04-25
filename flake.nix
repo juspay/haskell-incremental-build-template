@@ -5,7 +5,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
     nixos-unified.url = "github:srid/nixos-unified";
-    haskell-flake.url = "github:shivaraj-bh/haskell-flake/prev-int";
+    haskell-flake.url = "github:srid/haskell-flake";
 
     # Follows `inputs.self` by default
     #
