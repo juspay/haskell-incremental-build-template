@@ -10,8 +10,13 @@ A template for incremental Haskell builds using Nix, leveraging [nixpkgs’s Has
 
 For an existing Haskell project already using [haskell-flake], integrate this template by:
 - Add the `prev` flake input (see [flake.nix](./flake.nix)).
+
+https://github.com/juspay/haskell-incremental-build-template/blob/7432331400f27924d827fbf81de5140c1fa0052c/flake.nix#L10-L14
+
 - Include settings from [haskell.nix](./nix/modules/flake/haskell.nix):
-  - See `haskellProjects.default.settings.haskell-incremental-build-template`
+
+https://github.com/juspay/haskell-incremental-build-template/blob/7432331400f27924d827fbf81de5140c1fa0052c/nix/modules/flake/haskell.nix#L20-L32
+
 - Adopt the CI workflow from [ci.yaml](./.github/workflows/ci.yaml).
 
 [haskell-flake]: https://github.com/srid/haskell-flake
