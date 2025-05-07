@@ -26,7 +26,7 @@ runs:
       if: github.event_name == 'pull_request'
       shell: bash
       run: |
-        BASE_COMMIT=$(sh .github/actions/find_intermediates_base.sh ${{ github.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
+        BASE_COMMIT=$(sh $GITHUB_ACTION_PATH/find_intermediates_base.sh ${{ github.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
         if [ -n "$BASE_COMMIT" ]; then
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
         else
