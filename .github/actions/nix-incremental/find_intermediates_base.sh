@@ -12,7 +12,7 @@ for commit in $(git log -n 5 --pretty=%H); do
   # Check if the `packages.<package_name>` flake output of this commit revision is present in the cache.
   #
   # Note: Only checks for the presence, doesn't pull the path from the cache.
-  if nix path-info $(nix eval $repo/$commit#$package_name.outPath | tr -d '"') --store $cache_url; then
+  if nix path-info $(nix eval github:$repo/$commit#$package_name.outPath | tr -d '"') --store $cache_url; then
     echo "Intermediates exist for $commit"
     # Output only the commit hash to original stdout (fd 3)
     echo "$commit" >&3
