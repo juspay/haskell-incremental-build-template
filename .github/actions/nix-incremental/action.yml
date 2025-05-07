@@ -1,0 +1,54 @@
+name: "Nix Incremental Build"
+description: "Find the previous intermediates in the cache and incrementally build on it"
+inputs:
+  cache-url:
+    description: "The URL of the Nix binary cache to fetch previous intermediates from"
+    required: true
+  package-name:
+    description: "The `packages.<name>` flake output to incrementally build using previous intermediates. Leave empty to use `default`"
+    required: false
+    default: "default"
+outputs:
+  omci-json:
+    description: "The `om ci` result json"
+    value: ${{ steps.om_ci.outputs.result }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install omnix
+      run: |
+        nix profile install nixpkgs#omnix
+        nix --version
+
+    - name: Find base commit for incremental build
+      id: find_intermediates_base
+      if: github.event_name == 'pull_request'
+      run: |
+        BASE_COMMIT=$(sh .github/actions/find_intermediates_base.sh ${{ github.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
+        if [ -n "$BASE_COMMIT" ]; then
+          echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
+        else
+          echo "No base commit found for incremental build"
+        fi
+
+    - name: Determine build type
+      id: build_type
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_intermediates_base.outputs.base_commit }}" ]; then
+          echo "Build type: incremental"
+          echo "build_type=incremental" >> $GITHUB_OUTPUT
+        else
+          echo "Build type: full"
+          echo "build_type=full" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Om CI
+      id: om_ci
+      run: |
+        if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
+          om ci run --results=ci.json -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
+        else
+          om ci run --results=ci.json
+        fi
+        echo "result=$(cat ci.json)" >> "$GITHUB_OUTPUT"
+
