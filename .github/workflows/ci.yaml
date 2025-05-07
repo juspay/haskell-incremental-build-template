@@ -34,4 +34,4 @@ jobs:
           cache-url: "https://cache.nixos.asia/oss"
 
       - name: Push to Attic cache
-        run: attic push chutney:oss ${{ steps.nix_incremental.outputs.omci-json }}
+        run: attic push chutney:oss ${{ steps.nix_incremental.outputs.omci-result }}

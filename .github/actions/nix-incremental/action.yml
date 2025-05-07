@@ -9,7 +9,7 @@ inputs:
     required: false
     default: "default"
 outputs:
-  omci-json:
+  omci-result:
     description: "The `om ci` result json"
     value: ${{ steps.om_ci.outputs.result }}
 runs:
@@ -50,9 +50,9 @@ runs:
       shell: bash
       run: |
         if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
-          om ci run --results=ci.json -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
+          om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
         else
-          om ci run --results=ci.json
+          om ci run
         fi
-        echo "result=$(cat ci.json)" >> "$GITHUB_OUTPUT"
+        echo "result=$(readlink result)" >> "$GITHUB_OUTPUT"
 
