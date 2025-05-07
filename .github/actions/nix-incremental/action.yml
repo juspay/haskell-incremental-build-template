@@ -1,6 +1,10 @@
 name: "Nix Incremental Build"
 description: "Find the previous intermediates in the cache and incrementally build on it"
 inputs:
+  repository:
+    description: "The name of the repository in the `owner/repo` format"
+    required: false
+    default: ${{ github.repository }}
   cache-url:
     description: "The URL of the Nix binary cache to fetch previous intermediates from"
     required: true
@@ -26,7 +30,7 @@ runs:
       if: github.event_name == 'pull_request'
       shell: bash
       run: |
-        BASE_COMMIT=$(sh $GITHUB_ACTION_PATH/find_intermediates_base.sh ${{ github.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
+        BASE_COMMIT=$(sh $GITHUB_ACTION_PATH/find_intermediates_base.sh ${{ inputs.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
         if [ -n "$BASE_COMMIT" ]; then
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
         else
