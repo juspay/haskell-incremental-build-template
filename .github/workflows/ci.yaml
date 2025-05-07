@@ -17,6 +17,8 @@ jobs:
           fetch-depth: 5
 
       - uses: DeterminateSystems/nix-installer-action@main
+      
+      - run: echo ${{github.repository }}
 
       - name: Install attic-client
         run: |
@@ -31,6 +33,7 @@ jobs:
       - uses: ./.github/actions/nix-incremental
         id: nix_incremental
         with:
+          repository: ${{ github.repository }}
           cache-url: "https://cache.nixos.asia/oss"
 
       - name: Push to Attic cache
