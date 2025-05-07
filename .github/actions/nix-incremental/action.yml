@@ -16,6 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Install omnix
+      shell: bash
       run: |
         nix profile install nixpkgs#omnix
         nix --version
@@ -23,6 +24,7 @@ runs:
     - name: Find base commit for incremental build
       id: find_intermediates_base
       if: github.event_name == 'pull_request'
+      shell: bash
       run: |
         BASE_COMMIT=$(sh .github/actions/find_intermediates_base.sh ${{ github.repository }} ${{ inputs.package-name }} ${{ inputs.cache-url }})
         if [ -n "$BASE_COMMIT" ]; then
@@ -33,6 +35,7 @@ runs:
 
     - name: Determine build type
       id: build_type
+      shell: bash
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_intermediates_base.outputs.base_commit }}" ]; then
           echo "Build type: incremental"
@@ -44,6 +47,7 @@ runs:
 
     - name: Om CI
       id: om_ci
+      shell: bash
       run: |
         if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
           om ci run --results=ci.json -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
