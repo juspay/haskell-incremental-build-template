@@ -1,5 +1,5 @@
-name: "Nix Incremental Build"
-description: "Find the previous intermediates in the cache and incrementally build on it"
+name: "Find Intermediates Base"
+description: "Find the first commit, from last 5, to have successfully cached its build artifacts"
 inputs:
   cache-url:
     description: "The URL of the Nix binary cache to fetch previous intermediates from"
@@ -9,20 +9,14 @@ inputs:
     required: false
     default: "default"
 outputs:
-  omci-result:
-    description: "The `om ci` result json"
-    value: ${{ steps.om_ci.outputs.result }}
+  commit-hash:
+    description: "The commit hash of which the build artifacts are cached for flake's `packages` output with the name `inputs.package-name`"
+    value: ${{ steps.find_intermediates.outputs.base_commit }}
 runs:
   using: "composite"
   steps:
-    - name: Install omnix
-      shell: bash
-      run: |
-        nix profile install nixpkgs#omnix
-        nix --version
-
     - name: Find base commit for incremental build
-      id: find_intermediates_base
+      id: find_intermediates
       if: github.event_name == 'pull_request'
       shell: bash
       run: |
@@ -30,29 +24,7 @@ runs:
         if [ -n "$BASE_COMMIT" ]; then
           echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
         else
-          echo "No base commit found for incremental build"
+          echo "base_commit=" >> $GITHUB_OUTPUT
         fi
 
-    - name: Determine build type
-      id: build_type
-      shell: bash
-      run: |
-        if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_intermediates_base.outputs.base_commit }}" ]; then
-          echo "Build type: incremental"
-          echo "build_type=incremental" >> $GITHUB_OUTPUT
-        else
-          echo "Build type: full"
-          echo "build_type=full" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Om CI
-      id: om_ci
-      shell: bash
-      run: |
-        if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
-          om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
-        else
-          om ci run
-        fi
-        echo "result=$(readlink result)" >> "$GITHUB_OUTPUT"
 

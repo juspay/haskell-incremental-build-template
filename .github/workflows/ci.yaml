@@ -18,9 +18,9 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@main
       
-      - name: Install attic-client
+      - name: Install omnix and attic-client
         run: |
-          nix profile install nixpkgs#attic-client
+          nix profile install nixpkgs#omnix nixpkgs#attic-client
           nix --version
 
       - name: Setup Attic cache
@@ -29,9 +29,20 @@ jobs:
           attic use chutney:oss
 
       - uses: ./.github/actions/nix-incremental
-        id: nix_incremental
+        id: find_build_intermediates
         with:
           cache-url: "https://cache.nixos.asia/oss"
 
+      - name: Om CI
+        id: om_ci
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
+            om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
+          else
+            om ci run
+          fi
+          echo "result=$(readlink result)" >> "$GITHUB_OUTPUT"
+
       - name: Push to Attic cache
-        run: attic push chutney:oss ${{ steps.nix_incremental.outputs.omci-result }}
+        run: attic push chutney:oss ${{ steps.om_ci.outputs.result }}
