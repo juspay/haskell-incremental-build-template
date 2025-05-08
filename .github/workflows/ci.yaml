@@ -31,14 +31,14 @@ jobs:
       - uses: ./.github/actions/nix-incremental
         id: find_build_intermediates
         with:
-          cache-url: "https://cache.nixos.asia/oss"
+          cache_url: "https://cache.nixos.asia/oss"
 
       - name: Om CI
         id: om_ci
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
-            om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_intermediates_base.outputs.base_commit }}"
+            om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_build_intermediates.outputs.commit_hash }}"
           else
             om ci run
           fi
