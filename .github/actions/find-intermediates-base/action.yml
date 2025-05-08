@@ -17,9 +17,9 @@ runs:
   steps:
     - name: Find Base Commit for Incremental Build
       id: find_intermediates
-      if: github.event_name == 'pull_request'
       shell: bash
       run: |
+        echo "::group::Checking for cached intermediates"
         for commit in $(git log -n 5 --pretty=%H); do
           echo "::debug::Finding intermediates in $commit"
 
@@ -31,7 +31,8 @@ runs:
           if nix path-info $OUT_PATH --store ${{ inputs.cache_url }}; then
             echo "::notice::Found cached intermediates for commit $commit"
             # Output only the commit hash to original stdout (fd 3)
-            echo "commit_hash=$COMMIT" >> $GITHUB_OUTPUT
+            echo "commit_hash=$commit" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
             exit 0
           else
             echo "::debug::No cached intermediates for commit $commit"
@@ -39,4 +40,5 @@ runs:
         done
         echo "::notice::No cached intermediates found in the last 5 commits"
         echo "commit_hash=" >> $GITHUB_OUTPUT
+        echo "::endgroup::"
 

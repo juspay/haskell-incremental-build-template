@@ -30,6 +30,7 @@ jobs:
 
       - name: Find Build Intermediates Base
         uses: ./.github/actions/find-intermediates-base
+        if: github.event_name == 'pull_request'
         id: find_build_intermediates
         with:
           cache_url: "https://cache.nixos.asia/oss"
@@ -38,7 +39,7 @@ jobs:
         id: om_ci
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
+          if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
             om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_build_intermediates.outputs.commit_hash }}"
           else
             om ci run
