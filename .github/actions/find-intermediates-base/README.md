@@ -3,7 +3,7 @@
 This GitHub Action finds the most recent commit (from the last 5) with cached build artifacts for a specified Nix flake `packages` output.
 
 ## Dependencies
-- **Nix**: The runner must have Nix installed to run `nix eval` and `nix path-info` commands.
+- **Nix**: The runner must have Nix installed.
 - **Git**: Required for `git log` to retrieve commit history.
 - **Bash**: The Action uses Bash scripting, so a Unix-like environment is required.
 
