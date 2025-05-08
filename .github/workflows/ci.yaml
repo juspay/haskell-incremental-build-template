@@ -28,7 +28,8 @@ jobs:
           attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
           attic use chutney:oss
 
-      - uses: ./.github/actions/nix-incremental
+      - name: Find Build Intermediates Base
+        uses: ./.github/actions/find-intermediates-base
         id: find_build_intermediates
         with:
           cache_url: "https://cache.nixos.asia/oss"
