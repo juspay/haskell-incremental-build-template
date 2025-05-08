@@ -17,7 +17,9 @@ https://github.com/juspay/haskell-incremental-build-template/blob/7432331400f279
 
 https://github.com/juspay/haskell-incremental-build-template/blob/7432331400f27924d827fbf81de5140c1fa0052c/nix/modules/flake/haskell.nix#L20-L32
 
-- Adopt the CI workflow from [ci.yaml](./.github/workflows/ci.yaml).
+- Use [Find Intermediates Base](./.github/actions/find-intermediates-base) action to find the commit hash with cached build artifacts.
+
+**TODO**: Link to the permalink of the excerpt from `ci.yaml`
 
 [haskell-flake]: https://github.com/srid/haskell-flake
 
