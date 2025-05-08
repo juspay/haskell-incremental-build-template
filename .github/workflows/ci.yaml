@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 5
       - uses: DeterminateSystems/nix-installer-action@main
-      
+
       - name: Install omnix and attic-client
         run: |
           nix profile install nixpkgs#omnix nixpkgs#attic-client
