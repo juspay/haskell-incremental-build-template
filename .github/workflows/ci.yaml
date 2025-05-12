@@ -27,10 +27,10 @@ jobs:
           attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
           attic use chutney:oss
 
-      - name: Find Build Intermediates Base
-        uses: ./.github/actions/find-intermediates-base
+      - name: Find Latest Cached Commit
+        uses: ./.github/actions/find-latest-cached-commit
         if: github.event_name == 'pull_request'
-        id: find_build_intermediates
+        id: latest_cached
         with:
           cache_url: "https://cache.nixos.asia/oss"
           package_name: "default"
@@ -39,8 +39,8 @@ jobs:
         id: om_ci
         shell: bash
         run: |
-          if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
-            om ci run -- --override-input "flake/prev" "${{ steps.find_build_intermediates.outputs.flake_ref }}"
+          if [ -n "${{ steps.latest_cached.outputs.commit_hash }}" ]; then
+            om ci run -- --override-input "flake/prev" "${{ steps.latest_cached.outputs.flake_ref }}"
           else
             om ci run
           fi

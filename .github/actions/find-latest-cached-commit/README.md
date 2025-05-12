@@ -22,7 +22,7 @@ name: CI with Cached Intermediates
 on:
   pull_request:
 jobs:
-  find-intermediates:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,10 +32,10 @@ jobs:
         with:
           name: mycompany
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Find Build Intermediates Base
+      - name: Find Latest Cached Commit
         if: github.event_name == 'pull_request'
-        id: find_build_intermediates
-        uses: ./.github/actions/find-intermediates-base
+        id: latest_cached
+        uses: ./.github/actions/find-latest-cached-commit
         with:
           # Nix store object cache used to query the cached build artifacts
           cache_url: "https://mycompany.cachix.org"
@@ -43,9 +43,9 @@ jobs:
           package_name: "default"
       - name: Build Incrementally
         run: |
-          if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
-            echo "Building incrementally from commit ${{ steps.find_build_intermediates.outputs.commit_hash }}"
-            nix build .#default --override-input prev github:<repo>/<project>/${{ steps.find_build_intermediates.outputs.commit_hash }}
+          if [ -n "${{ steps.latest_cached.outputs.commit_hash }}" ]; then
+            echo "Building incrementally from commit ${{ steps.latest_cached.outputs.commit_hash }}"
+            nix build .#default --override-input prev ${{ steps.latest_cached.outputs.flake_ref }}
           else
             echo "No cached intermediates found; performing full build"
             nix build .#default
