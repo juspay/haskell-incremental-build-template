@@ -40,6 +40,7 @@ jobs:
         shell: bash
         run: |
           if [ -n "${{ steps.latest_cached.outputs.commit_hash }}" ]; then
+            # The `flake/` prefix is necessary for https://github.com/juspay/omnix/issues/452
             om ci run -- --override-input "flake/prev" "${{ steps.latest_cached.outputs.flake_ref }}"
           else
             om ci run
