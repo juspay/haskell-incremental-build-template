@@ -1,4 +1,4 @@
-name: Find Intermediates Base
+name: Find Latest Cached Commit
 description: Finds the most recent commit (from the last 5) with cached build artifacts for a specified Nix flake `packages` output. Requires Nix installed on the runner
 inputs:
   cache_url:
