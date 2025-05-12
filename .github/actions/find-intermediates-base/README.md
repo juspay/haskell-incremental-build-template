@@ -11,6 +11,12 @@ This GitHub Action finds the most recent commit (from the last 5) with cached bu
 
 ### Example Workflow
 
+This example github action workflow configuration does the following:
+- Install Nix
+- Setup cachix (Nix store object cache)
+- Find the previously cached build artifacts
+- Uses the cache to incrementally build the latest version of the package
+
 ```yaml
 name: CI with Cached Intermediates
 on:
@@ -22,19 +28,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v1.0.0
+      - uses: cachix/cachix-action@v14
+        with:
+          name: mycompany
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Find Build Intermediates Base
         if: github.event_name == 'pull_request'
         id: find_build_intermediates
         uses: ./.github/actions/find-intermediates-base
         with:
-          cache_url: "https://cache.nixos.org"
+          cache_url: "https://mycompany.cachix.org"
       - name: Build Incrementally
         run: |
           if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
             echo "Building incrementally from commit ${{ steps.find_build_intermediates.outputs.commit_hash }}"
-            # Add your incremental build command here
+            nix build .#default --override-input prev github:<repo>/<project>/${{ steps.find_build_intermediates.outputs.commit_hash }}
           else
             echo "No cached intermediates found; performing full build"
-            # Add your full build command here
+            nix build .#default
           fi
 
