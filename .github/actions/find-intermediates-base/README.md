@@ -37,7 +37,10 @@ jobs:
         id: find_build_intermediates
         uses: ./.github/actions/find-intermediates-base
         with:
+          # Nix store object cache used to query the cached build artifacts
           cache_url: "https://mycompany.cachix.org"
+          # The package whose build artifacts are fetched and incremented on in the latest revision of the project
+          package_name: "default"
       - name: Build Incrementally
         run: |
           if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then

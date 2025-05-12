@@ -33,6 +33,7 @@ jobs:
         id: find_build_intermediates
         with:
           cache_url: "https://cache.nixos.asia/oss"
+          package_name: "default"
 
       - name: Om CI
         id: om_ci

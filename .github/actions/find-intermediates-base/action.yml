@@ -6,8 +6,7 @@ inputs:
     required: true
   package_name:
     description: The `packages.<name>` flake output to incrementally build. Defaults to `default`.
-    required: false
-    default: "default"
+    required: true
 outputs:
   commit_hash:
     description: The commit hash of the most recent commit (from the last 5) with cached artifacts for the specified package. Empty if none found.
