@@ -1,4 +1,4 @@
-# Find Intermediates Base Action
+# Find Latest Cached Commit Action
 
 This GitHub Action finds the most recent commit (from the last 5) with cached build artifacts for a specified Nix flake `packages` output.
 
