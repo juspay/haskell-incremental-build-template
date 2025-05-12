@@ -19,7 +19,7 @@ https://github.com/juspay/haskell-incremental-build-template/blob/7432331400f279
 
 - Use [Find Latest Cached Commit](./.github/actions/find-latest-cached-commit) action to find the commit hash with cached build artifacts.
 
-**TODO**: Link to the permalink of the excerpt from `ci.yaml`
+https://github.com/juspay/haskell-incremental-build-template/blob/efd179a97b078634db3f124e862260d3acc35499/.github/workflows/ci.yaml#L30-L48
 
 [haskell-flake]: https://github.com/srid/haskell-flake
 
