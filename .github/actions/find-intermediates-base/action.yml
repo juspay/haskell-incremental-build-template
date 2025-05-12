@@ -11,6 +11,9 @@ outputs:
   commit_hash:
     description: The commit hash of the most recent commit (from the last 5) with cached artifacts for the specified package. Empty if none found.
     value: ${{ steps.find_intermediates.outputs.commit_hash }}
+  flake_ref:
+    description: This output can be used directly while overriding a flake input instead of having to construct it as is the case while using `outputs.commit_hash`
+    value: "github:${{ github.repository }}/${{ steps.find_intermediates.outputs.commit_hash }}"
 runs:
   using: "composite"
   steps:

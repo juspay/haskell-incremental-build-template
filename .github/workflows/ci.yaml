@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           if [ -n "${{ steps.find_build_intermediates.outputs.commit_hash }}" ]; then
-            om ci run -- --override-input "flake/prev" "github:${{ github.repository }}/${{ steps.find_build_intermediates.outputs.commit_hash }}"
+            om ci run -- --override-input "flake/prev" "${{ steps.find_build_intermediates.outputs.flake_ref }}"
           else
             om ci run
           fi
