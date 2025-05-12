@@ -1,0 +1,46 @@
+name: Find Latest Cached Commit
+description: Finds the most recent commit (from the last 5) with cached build artifacts for a specified Nix flake `packages` output. Requires Nix installed on the runner
+inputs:
+  cache_url:
+    description: The URL of the Nix binary cache to check for previous build artifacts.
+    required: true
+  package_name:
+    description: The `packages.<name>` flake output to incrementally build. Defaults to `default`.
+    required: true
+outputs:
+  commit_hash:
+    description: The commit hash of the most recent commit (from the last 5) with cached artifacts for the specified package. Empty if none found.
+    value: ${{ steps.find_intermediates.outputs.commit_hash }}
+  flake_ref:
+    description: This output can be used directly while overriding a flake input instead of having to construct it as is the case while using `outputs.commit_hash`
+    value: "github:${{ github.repository }}/${{ steps.find_intermediates.outputs.commit_hash }}"
+runs:
+  using: "composite"
+  steps:
+    - name: Find Base Commit for Incremental Build
+      id: find_intermediates
+      shell: bash
+      run: |
+        echo "::group::Checking for cached intermediates"
+        for commit in $(git log -n 5 --pretty=%H); do
+          echo "::debug::Finding intermediates in $commit"
+
+          FLAKE_URL="github:${{ github.repository }}/$commit#packages.$(nix eval --impure --expr 'builtins.currentSystem').${{ inputs.package_name }}.outPath"
+          # Evaluate the `/nix/store` output path of `inputs.package_name` and trim the quotes enclosing the path
+          OUT_PATH=$(nix eval $FLAKE_URL | tr -d '"')
+
+          # Check if the output path exists in the cache without downloading it
+          if nix path-info $OUT_PATH --store ${{ inputs.cache_url }}; then
+            echo "::notice::Found cached intermediates for commit $commit"
+            # Output only the commit hash to original stdout (fd 3)
+            echo "commit_hash=$commit" >> $GITHUB_OUTPUT
+            echo "::endgroup::"
+            exit 0
+          else
+            echo "::debug::No cached intermediates for commit $commit"
+          fi
+        done
+        echo "::notice::No cached intermediates found in the last 5 commits"
+        echo "commit_hash=" >> $GITHUB_OUTPUT
+        echo "::endgroup::"
+

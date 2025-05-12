@@ -27,38 +27,25 @@ jobs:
           attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
           attic use chutney:oss
 
-      - name: Find base commit for incremental build
-        id: find_intermediates_base
+      - name: Find Latest Cached Commit
+        uses: ./.github/actions/find-latest-cached-commit
         if: github.event_name == 'pull_request'
-        run: |
-          BASE_COMMIT=$(sh .github/workflows/find_intermediates_base.sh)
-          if [ -n "$BASE_COMMIT" ]; then
-            echo "base_commit=$BASE_COMMIT" >> $GITHUB_OUTPUT
-          else
-            echo "No base commit found for incremental build"
-          fi
+        id: latest_cached
+        with:
+          cache_url: "https://cache.nixos.asia/oss"
+          package_name: "default"
 
-      - name: Determine build type
-        id: build_type
+      - name: Om CI
+        id: om_ci
+        shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.find_intermediates_base.outputs.base_commit }}" ]; then
-            echo "Build type: incremental"
-            echo "build_type=incremental" >> $GITHUB_OUTPUT
+          if [ -n "${{ steps.latest_cached.outputs.commit_hash }}" ]; then
+            # The `flake/` prefix is necessary for https://github.com/juspay/omnix/issues/452
+            om ci run -- --override-input "flake/prev" "${{ steps.latest_cached.outputs.flake_ref }}"
           else
-            echo "Build type: full"
-            echo "build_type=full" >> $GITHUB_OUTPUT
+            om ci run
           fi
-
-      - name: Build
-        run: |
-          if [ "${{ steps.build_type.outputs.build_type }}" = "incremental" ]; then
-            WORKTREE_DIR="temp-worktree-${{ steps.find_intermediates_base.outputs.base_commit }}"
-            git worktree add $WORKTREE_DIR ${{ steps.find_intermediates_base.outputs.base_commit }}
-            om ci run -- --override-input "flake/incremental" "path:$WORKTREE_DIR"
-            git worktree remove $WORKTREE_DIR
-          else
-            om ci
-          fi
+          echo "result=$(readlink result)" >> "$GITHUB_OUTPUT"
 
       - name: Push to Attic cache
-        run: attic push chutney:oss result
+        run: attic push chutney:oss ${{ steps.om_ci.outputs.result }}
