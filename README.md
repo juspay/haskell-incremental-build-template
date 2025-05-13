@@ -4,6 +4,9 @@
 > This minimal template focuses solely on incremental Haskell build configuration with Nix.
 > For a more batteries-included Haskell Nix template, combine it with <https://github.com/srid/haskell-template>
 
+> [!IMPORTANT]
+> Requires GHC >= 9.4
+
 A template for incremental Haskell builds using Nix, leveraging [nixpkgs’s Haskell incremental build system](https://github.com/NixOS/nixpkgs/blob/30a7bc1176cd9cd066cd75b9339872fa985a6379/doc/languages-frameworks/haskell.section.md?plain=1#L469-L515) and [haskell-flake]
 
 ## Getting Started
